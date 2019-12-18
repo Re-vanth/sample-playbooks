@@ -1,0 +1,12 @@
+---
+
+- hosts: slave00
+  tasks:
+    - name: adding node to cluster
+      docker_swarm:
+        state: join
+        advertise_addr: 192.168.100.200
+        join_token: SWMTKN-1-28xzkz142y1sojuj1eyjnpylmuehwe3a3sog82esu17h9lcf7n-3mtmj8wwewtq33ffh6w4v8edk 
+
+        remote_addrs: [ '192.168.111.200:2377' ]
+

@@ -1,0 +1,113 @@
+---
+
+
+- hosts: ntp-host
+  tasks:
+
+    - name: start firewall
+      service: 
+        name: firewalld
+        state: started
+        enabled: true
+
+    - name: set timezone
+      shell: timedatectl set-timezone Asia/Kolkata
+
+    - name: install ntp
+      yum:
+        name: ntp
+        state: latest
+   
+    - name: start ntp
+      service: 
+        name: ntpd
+        state: started
+        enabled: true
+
+    - name: copy the NTP configuration files
+      template: src=/home/vagrant/ntpfiles/ntp_config/server_ntp.conf dest=/etc/ntp.conf
+ 
+    - name: restart ntpd
+      service:
+        name: ntpd
+        state: restarted
+        enabled: true
+
+    - name: allow ntp through firewall
+      firewalld:
+        service: ntp
+        state: enabled
+        permanent: yes
+
+    - name: reload the firewall
+      service: 
+        name: firewalld
+        state: reloaded
+    
+- hosts: ntp-client
+  tasks:
+
+    - name: start firewall
+      service:
+        name: firewalld
+        state: started
+        enabled: true
+
+    - name: set timezone
+      shell: timedatectl set-timezone Asia/Kolkata
+
+    - name: install ntp
+      yum:
+        name: ntp
+        state: present
+   
+    - name: start ntp
+      service: 
+        name: ntpd
+        state: started
+        enabled: true
+
+    - name: allow ntp through firewall
+      firewalld:
+        service: ntp
+        state: enabled
+        permanent: yes
+
+    - name: reload the firewall
+      service: 
+        name: firewalld
+        state: reloaded
+
+    - name: copy the ntp configuration
+      template: src=/home/vagrant/ntpfiles/ntp_config/client_ntp.conf dest=/etc/ntp.conf
+
+    - name: restart ntpd
+      service: 
+        name: ntpd
+        state: restarted
+
+    - name: make sure ntp is stopped
+      service: 
+        name: ntpd
+        state: stopped
+        enabled: true
+
+
+    - name: sync time initially
+      shell: ntpdate 192.168.100.201
+
+    - name: make sure ntp is started up
+      service: 
+        name: ntpd
+        state: restarted
+        enabled: true
+
+    - name: sync hwclock
+      shell: hwclock -w
+
+    - name: restart ntpd
+      service:
+        name: ntpd
+        state: restarted
+        enabled: true
+     

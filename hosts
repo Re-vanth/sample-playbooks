@@ -1,0 +1,21 @@
+
+[all]
+
+slave01.itversity.com ansible_user=admin 
+slave02.itversity.com ansible_user=admin
+
+[ntp-host]
+
+slave01.itversity.com ansible_user=admin
+
+[ntp-client]
+
+slave02.itversity.com ansible_user=admin
+
+[trial1]
+
+server00.itversity.com ansible_user=admin
+
+[trial0]
+
+trial0.itversity.com ansible_user=admin

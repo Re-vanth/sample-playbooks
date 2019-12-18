@@ -1,0 +1,32 @@
+---
+
+- hosts: all
+  tasks:
+     - name: start firewall
+       service: 
+         name: firewalld
+         state: started
+         enabled: true
+
+     - name: install httpd
+       yum:
+         name: httpd
+         state: latest          
+
+     - name: allow httpd through firewall
+       firewalld: 
+         service: http
+         state: enabled
+         permanent: true 
+
+     - name: firewall reload
+       service: 
+         name: firewalld
+         state: reloaded
+
+     - name: start httpd service
+       service: 
+         name: httpd
+         state: started
+         enabled: true
+

@@ -1,0 +1,61 @@
+---
+- hosts: trial1
+  tasks:
+    - name: create a repo file for mongo db
+      file: 
+        path: /etc/yum.repos.d/mongodb-org-4.2.repo
+        state: touch
+    - name: adding repository details to mongodb repofile
+      copy:
+        src: /home/vagrant/testplaybooks/mongodb-org-4.2.repo
+        dest: /etc/yum.repos.d/mongodb-org-4.2.repo
+#      blockinfile:
+ #       path: /etc/yum.repos.d/mongodb-org-4.2.repo
+  #      block: |
+   #       [mongodb-org-4.2] 
+    #      name=MongoDB 
+     #     Repository baseurl=https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/4.2/x86_64/ 
+          #gpgcheck=1 
+          #enabled=1 
+          #gpgkey=https://www.mongodb.org/static/pgp/server-4.2.asc
+    - name: install mongodb
+      yum:
+        name: mongodb-org
+        state: latest
+     
+      
+    - name: install pymongo
+      yum: 
+        name: python-devel,gcc
+        state: latest
+        
+    - name: start firewall
+      service: 
+        name: firewalld
+        state: started
+        enabled: true
+
+    - name: add service mongodb to firewall
+      firewalld:
+        service: mongodb
+        state: enabled
+        permanent: yes
+
+    - name: firewall reload
+      service: 
+        name: firewalld
+        state: reloaded
+
+    - name: start the service mongodb 
+      service: 
+        name: mongod
+        state: started
+        enabled: true
+
+    - name: create a user
+      mongodb_user: 
+        database: trialdatabase1
+        name: testuser123
+        password: 12345
+        state: present
+

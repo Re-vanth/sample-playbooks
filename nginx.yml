@@ -1,0 +1,41 @@
+---
+
+- hosts: all
+  tasks:
+    - name: start firewall
+      service: 
+        name: firewalld
+        state: started
+        enabled: true
+
+    - name: install yum utils
+      yum:
+        name: yum-utils
+        state: present
+
+    - name: copy nginx.repo data to /etc/yum.repos.d/
+      copy:
+        src: /home/vagrant/nginxfile/
+        dest: /etc/yum.repos.d/
+
+    - name: install nginx
+      yum:  
+        name: nginx
+        state: latest
+
+    - name: allow nginx through firewall
+      firewalld: 
+        service: http
+        permanent: yes
+        state: enabled
+
+    - name: firewall reload
+      service: 
+        name: firewalld
+        state: reloaded
+
+    - name: start nginx service
+      service:
+        name: nginx
+        state: started
+        enabled: true        

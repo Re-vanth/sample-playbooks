@@ -1,0 +1,17 @@
+---
+
+- hosts: trial0
+  tasks:
+    - name: pull a docker image and run it
+      docker_image: 
+        name: nginx
+        source: pull
+
+    - name: start the contianer
+      docker_container:
+        name: mytest1
+        image: nginx
+        state: started
+        ports: 
+          - "8080:9000"
+          - "192.168.111.200:8081:9001" 
