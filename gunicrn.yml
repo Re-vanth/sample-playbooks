@@ -1,0 +1,15 @@
+--- 
+
+- hosts: slave00
+  tasks: 
+    - name: install python
+      yum:
+        name: python
+        state: latest
+    - name: install gunicorn
+      yum:
+        name: python-gunicorn
+        state: latest
+
+
+#in order for this to work nginx is must

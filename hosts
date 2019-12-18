@@ -19,3 +19,7 @@ server00.itversity.com ansible_user=admin
 [trial0]
 
 trial0.itversity.com ansible_user=admin
+
+[slave00]
+
+slave00.itversity.com ansible_user=admin

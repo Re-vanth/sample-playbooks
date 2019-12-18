@@ -1,6 +1,6 @@
 ---
 
-- hosts: all
+- hosts: slave00 
   tasks:
     - name: start firewall
       service: 
@@ -15,7 +15,7 @@
 
     - name: copy nginx.repo data to /etc/yum.repos.d/
       copy:
-        src: /home/vagrant/nginxfile/
+        src: /home/vagrant/testplaybooks/nginxfile/ 
         dest: /etc/yum.repos.d/
 
     - name: install nginx
