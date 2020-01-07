@@ -1,0 +1,121 @@
+---
+
+- hosts:  all1
+  tasks:
+
+    - name: install java
+      yum:
+        name: java-1.8.0-openjdk
+        state: latest
+   
+
+    - name: downloading zookeeper and extracting binaries
+      unarchive: 
+        src: http://mirrors.ukfast.co.uk/sites/ftp.apache.org/zookeeper/stable/apache-zookeeper-3.5.6-bin.tar.gz
+        dest: /opt
+        remote_src: yes
+
+    
+
+    - name: renaming the directory to zookeeper
+      command: mv /opt/apache-zookeeper-3.5.6-bin /opt/zookeeper 
+
+    - name: configuring zoo.cfg file
+      file:
+        path: /opt/zookeeper/conf/zoo.cfg
+        state: touch
+      
+    - name: insert properties and values in zoo.cfg file
+      blockinfile:
+        path: /opt/zookeeper/conf/zoo.cfg
+        block: |
+          tickTime=2000
+          dataDir=/var/lib/zookeeper
+          clientPort=2181
+          maxClientCnxns=60
+          initLimit=5
+          syncLimit=2
+          server.1=192.168.101.200:2888:3888
+          server.2=192.168.101.201:2888:3888
+          server.3=192.168.101.202:2888:3888
+    
+- hosts: slave00 
+  tasks:   
+    - name: creating myid files in slave00 
+      lineinfile:
+        path: /var/lib/zookeeper/myid
+        line: "1"
+        create: yes
+       
+- hosts: slave01
+  tasks:
+    - name: creating myid files in slave01 
+      lineinfile:
+        path: /var/lib/zookeeper/myid
+        line: "2"
+        create: yes
+          
+- hosts: slave02
+  tasks:
+    - name: creating myid files in slave02
+      lineinfile:
+        path: /var/lib/zookeeper/myid
+        line: "3"
+        create: yes
+
+- hosts: all1
+  tasks:
+    - name: adding zookeeper to system startup
+      blockinfile: 
+        path: /opt/zookeeper/bin/zkServer.sh
+        block: |
+          # description: Zookeeper Start Stop Restart
+          # # processname: zookeeper
+          # # chkconfig: 244 30 80
+        insertafter: "#!/usr/bin/env bash"
+    - name: replacing existing variables to add it to symlink
+      lineinfile:
+        path: /opt/zookeeper/bin/zkServer.sh
+        regexp: '^ZOOBIN="${BASH_SOURCE-$0}"' 
+        state: absent
+
+    - name: replacing existing variables to add it to symlink
+      lineinfile: 
+        path: /opt/zookeeper/bin/zkServer.sh
+        regexp: '^ZOOBIN="$(dirname "${ZOOBIN}")"'
+        state: absent
+
+    - name: replacing existing variables to add it to symlink
+      lineinfile: 
+        path: /opt/zookeeper/bin/zkServer.sh
+        regexp: '^ZOOBINDIR="$(cd "${ZOOBIN}"; pwd)"'
+        state: absent
+
+    - name: new variables adding
+      blockinfile: 
+        path: /opt/zookeeper/bin/zkServer.sh
+        insertafter: "# use POSTIX interface, symlink is followed automatically"
+        block: |
+          # chkconfig: 345 20 80
+          # description: zookeeper
+          ZOOSH=`readlink $0`
+          ZOOBIN=`dirname $ZOOSH`
+          ZOOBINDIR=`cd $ZOOBIN; pwd`
+          ZOO_LOG_DIR=`echo $ZOOBIN`  
+        
+
+    - name: adding symlink to zookeeper 
+      file:
+        src: /opt/zookeeper/bin/zkServer.sh 
+        dest: /etc/init.d/zookeeper
+        state: link
+    - name: adding zookeeper to boot menu
+      command: chkconfig zookeeper on
+    - name: restarting all the servers 
+      command: init 6
+#    - name: starting zookeeper in and testing it
+#      command: /opt/zookeeper/bin/zkServer.sh start
+      
+# the last task(restarting all the servers ) shows as failed in our case as it can not login into the restarted machines again so we have to do it manually and manually start zookeeper(using above commented command) and check the status of it so we can know which node is follower and which node is a leader
+
+
