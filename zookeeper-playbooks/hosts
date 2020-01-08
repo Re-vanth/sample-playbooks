@@ -17,4 +17,6 @@ slave02.itversity.com ansible_user=admin
 
 slave00.itversity.com ansible_user=admin
 
+[controller00]
 
+controller00.itversity.com ansible_user=admin

@@ -1,0 +1,48 @@
+---
+
+
+- hosts: controller00
+  tasks:
+
+    - name: install java
+      yum:
+        name: java-1.8.0-openjdk
+        state: latest
+
+    - name: creating a zookeeper directory 
+      command: mkdir -p /data/zookeeper
+
+    - name: downloading zookeeper and extracting binaries
+      unarchive: 
+        src: http://mirrors.ukfast.co.uk/sites/ftp.apache.org/zookeeper/stable/apache-zookeeper-3.5.6-bin.tar.gz
+        dest: /opt
+        remote_src: yes
+
+ 
+    - name: creating a symbolic link between apache-zookeeper-3.5.6-bin and zookeeper directory
+      file:
+        src: "/opt/apache-zookeeper-3.5.6-bin"
+        dest: "/data/zookeeper"
+        state: link
+        force: yes
+
+    - name: configuring the zookeeper by creating the zoo.cfg file
+      file:
+        path: /opt/apache-zookeeper-3.5.6-bin/conf/zoo.cfg
+        state: touch
+      
+    - name: insert properties and values in zoo.cfg file
+      blockinfile:
+        path: /opt/apache-zookeeper-3.5.6-bin/conf/zoo.cfg
+        block: |
+          tickTime=2000
+          dataDir=/data/zookeeper
+          clientPort=2181
+          maxClientCnxns=60
+          
+    - name: starting zookeeper in standalone mode and testing it
+      command: /opt/apache-zookeeper-3.5.6-bin/bin/zkServer.sh start
+
+#    - name: connecting to zookeeper in local host
+#      shell: /opt/apache-zookeeper-3.5.6-bin/bin/zkCli.sh -server localhost:2181
+#  to connect to the zookeeper in standalone mode the above command can be used to connect to the zookeeper manually ie. ssh to the slave node and and execute the command.        
