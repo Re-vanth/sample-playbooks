@@ -1,0 +1,26 @@
+---
+
+
+
+- name: start mysql server and enable it
+  service:
+    name: mysqld
+    state: started
+    enabled: yes
+
+- name: remove test database if it exists.
+  mysql_db:
+    name: test
+    state: absent
+
+- name: remove all anonymous user accounts
+  mysql_user: name='' host_all=yes state=absent
+- name: create database
+  mysql_db:
+    name: testdb
+    state: present
+
+- name: create user
+  mysql_user: name=admin password=redhat priv=demo.*:All host='%' state=present
+
+
