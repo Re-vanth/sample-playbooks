@@ -1,8 +1,0 @@
----
-
-- hosts: slave00
-  roles:
-    - {role : install-mysql}
-
-
-  
