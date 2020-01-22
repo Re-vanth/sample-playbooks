@@ -1,0 +1,20 @@
+
+[all1]
+
+slave00.itversity.com ansible_user=admin
+slave01.itversity.com ansible_user=admin 
+slave02.itversity.com ansible_user=admin
+
+[slave01]
+
+slave01.itversity.com ansible_user=admin
+
+[slave02]
+
+slave02.itversity.com ansible_user=admin
+
+[slave00]
+
+slave00.itversity.com ansible_user=admin
+
+

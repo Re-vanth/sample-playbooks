@@ -1,0 +1,78 @@
+---
+
+- hosts: all1
+  tasks:
+    - name: download and unarchive the latest kafka build
+      unarchive:
+        src: http://mirrors.estointernet.in/apache/kafka/2.4.0/kafka_2.11-2.4.0.tgz 
+        dest: /opt
+        remote_src: yes
+    - name: renaming the downloaded file to 'kafka'
+      command: mv /opt/kafka_2.11-2.4.0 /opt/kafka    
+    
+
+
+- hosts: slave00
+  tasks:
+    - name: adding variables in config file
+      blockinfile: 
+        path: /opt/kafka/config/server.properties
+                 
+        block: |
+          # The id of the broker. This must be set to a unique integer for each broker.
+                     
+          broker.id=10
+          #  # A comma separated list of directories under which to store log files 
+          log.dirs=/tmp/kafka-logs 
+          advertised.host.name= 192.168.101.200 
+          log.dirs=/tmp/kafka-logs          
+          # add all 3 zookeeper instances ip here          
+          zookeeper.connect=192.168.101.200:2181,192.168.101.201:2181,192.168.101.202:2181           
+          zookeeper.connection.timeout.ms=6000 
+          #
+
+
+- hosts: slave01                                                                                 
+  tasks:                                                                                         
+    - name: adding variables in config file                                                      
+      blockinfile:                                                                               
+        path: /opt/kafka/config/server.properties
+                                                
+        block: |
+          # The id of the broker. This must be set to a unique integer for each broker.
+          broker.id=20
+          #  
+          #  # A comma separated list of directories under which to store log files
+          log.dirs=/tmp/kafka-logs
+          advertised.host.name=192.168.101.201
+          log.dirs=/tmp/kafka-logs
+            # add all 3 zookeeper instances ip here
+          zookeeper.connect=192.168.101.201:2181,192.168.101.200:2181,192.168.101.202:2181
+          zookeeper.connection.timeout.ms=6000
+
+- hosts: slave02
+  tasks:
+    - name:  adding variables in config file
+      blockinfile:
+        path: /opt/kafka/config/server.properties
+        
+        block: |
+          # The id of the broker. This must be set to a unique integer for each broker.
+          broker.id=30
+          #  
+          # A comma seperated list of directories under which to store log files
+          log.dirs=/tmp/kafka-logs
+          advertised.host.name=192.168.101.202
+          log.dirs=/tmp/kafka-logs
+          #  # add all 3 zookeeper instances ip here
+          zookeeper.connect=192.168.101.202:2181,192.168.101.200:2181,192.168.101.201:2181
+          zookeeper.connection.timeout.ms=6000
+        
+
+- hosts: all1
+  tasks: 
+    - name: starting kafka on all slave machines.
+      command: /opt/kafka/bin/kafka-server-start.sh config/server.properties
+
+
+
